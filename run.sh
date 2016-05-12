@@ -3,7 +3,9 @@
 set -e
 
 # Build the project and docker images
-mvn clean install
+# mvn clean install -DskipTests
+mvn install -DskipTests
+ # -DskipDockerBuild
 
 # Export the active docker machine IP
 export DOCKER_IP=$(docker-machine ip $(docker-machine active))

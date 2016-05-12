@@ -1,0 +1,30 @@
+docker-machine create -d amazonec2 consul-machine
+eval $(docker-machine env consul-machine)
+
+
+version: '2'
+services:
+    myconsul:
+      image: progrium/consul
+      restart: always
+      hostname: consul
+      ports:
+        - 8500:8500
+      command: "-server -bootstrap"
+
+docker-compose up -d
+
+docker-machine create -d amazonec2 --amazonec2-security-group "event-source-demo" --swarm --swarm-master --swarm-discovery="consul://$(docker-machine ip consul-machine):8500" --engine-opt="cluster-store=consul://$(docker-machine ip consul-machine):8500" --engine-opt="cluster-advertise=eth0:2376" swarm-master
+
+eval $(docker-machine env --swarm swarm-master)
+
+docker-machine create -d amazonec2 --amazonec2-security-group "event-source-demo" --swarm --swarm-discovery="consul://$(docker-machine ip consul-machine):8500" --engine-opt="cluster-store=consul://$(docker-machine ip consul-machine):8500" --engine-opt="cluster-advertise=eth0:2376" swarm-node-01
+docker-machine create -d amazonec2 --amazonec2-security-group "event-source-demo" --swarm --swarm-discovery="consul://$(docker-machine ip consul-machine):8500" --engine-opt="cluster-store=consul://$(docker-machine ip consul-machine):8500" --engine-opt="cluster-advertise=eth0:2376" swarm-node-02
+docker-machine create -d amazonec2 --amazonec2-security-group "event-source-demo" --swarm --swarm-discovery="consul://$(docker-machine ip consul-machine):8500" --engine-opt="cluster-store=consul://$(docker-machine ip consul-machine):8500" --engine-opt="cluster-advertise=eth0:2376" swarm-node-03
+docker-machine create -d amazonec2 --amazonec2-security-group "event-source-demo" --swarm --swarm-discovery="consul://$(docker-machine ip consul-machine):8500" --engine-opt="cluster-store=consul://$(docker-machine ip consul-machine):8500" --engine-opt="cluster-advertise=eth0:2376" swarm-node-04
+
+eval $(docker-machine env --swarm swarm-master)
+
+docker-compose up -d
+or
+sh run.sh
