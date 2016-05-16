@@ -2,16 +2,19 @@
 
 set -e
 
+# see https://github.com/spotify/docker-maven-plugin/issues/218#issuecomment-217383661
+export DOCKER_HOST=unix:///var/run/docker.sock
+
 # Build the project and docker images
-# mvn clean install -DskipTests
-mvn install -DskipTests
- # -DskipDockerBuild
+mvn clean install -DskipTests
+# mvn install -DskipTests -DskipDockerBuild
 
 # Export the active docker machine IP
-export DOCKER_IP=$(docker-machine ip $(docker-machine active))
+# export DOCKER_IP=$(docker-machine ip $(docker-machine active))
 
 # docker-machine doesn't exist in Linux, assign default ip if it's not set
-DOCKER_IP=${DOCKER_IP:-0.0.0.0}
+# DOCKER_IP=${DOCKER_IP:-0.0.0.0}
+export DOCKER_IP=192.168.2.19
 
 # Remove existing containers
 docker-compose stop
@@ -43,4 +46,4 @@ done
 docker-compose up -d
 
 # Attach to the log output of the cluster
-docker-compose logs
+docker-compose logs -f
